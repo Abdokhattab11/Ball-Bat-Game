@@ -94,6 +94,10 @@ def test_wall_ball(ball: rect, wall: rect):
 def test_plyer_ball(ball: rect, player: rect):
     if ball.bottom == player.top and ball.left >= player.left and ball.right <= player.right and deltaY == -1:
         return True
+    if ball.bottom == player.top and ball.left < player.left and ball.right >= player.left and deltaY == -1:
+        return True
+    if ball.bottom == player.top and ball.right > player.right and ball.left <= player.right and deltaY == -1:
+        return True
     return False
 
 
