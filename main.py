@@ -24,6 +24,8 @@ ball = rect(390, 240, 410, 260)
 wall = rect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
 player = rect(0, 0, 80, 20)
 
+r, g, b = 1, 1, 1
+
 
 def Init_Camera_Proj():
     glClearColor(0, 0, 0, 0)
