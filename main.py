@@ -7,11 +7,21 @@ WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 500
 PERIOD = 10  # ms
 
-PLAYER_CNT = 0
-PC_CNT = 0
+playerScore = 0
+pcScore = 0
 
-ball = rect(400, 250, 420, 270)
-window = rect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
+deltaX = 1
+deltaY = -1
+
+FROM_RIGHT = 1
+FROM_LEFT = 2
+FROM_TOP = 3
+FROM_BOTTOM = 4
+
+mouse_x = 400
+
+ball = rect(390, 240, 410, 260)
+wall = rect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
 player = rect(0, 0, 80, 20)
 
 
@@ -25,28 +35,66 @@ def Init_Camera_Proj():
     glEnable(GL_DEPTH_TEST)
 
 
-def Timer(v):
-    display()
-    glutTimerFunc(PERIOD, Timer, 1)
-
-
 def display():
+    global deltaX, deltaY, playerScore, pcScore
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glColor3f(1, 1, 1)
     draw_rect(ball)
-    draw_rect(player)
 
     glPushMatrix()
-    s1 = "PC : " + str(PC_CNT)
+    s1 = "PC : " + str(pcScore)
     draw_text(s1, 10, 460)
     glPopMatrix()
 
     glPushMatrix()
-    s2 = "Player : " + str(PLAYER_CNT)
+    s2 = "Player : " + str(playerScore)
     draw_text(s2, 10, 420)
     glPopMatrix()
 
+    player.left = mouse_x - 30
+    player.right = mouse_x + 30
+    glColor3f(1, 1, 1)
+    draw_rect(player)
+
+    if test_plyer_ball(ball, player):
+        deltaY = 1
+        playerScore += 1
+
+    # Collsion detection between Wall and Ball
+    if test_wall_ball(ball, wall) == FROM_BOTTOM:
+        deltaY = 1
+        pcScore += 1
+    if test_wall_ball(ball, wall) == FROM_LEFT:
+        deltaX = 1
+    if test_wall_ball(ball, wall) == FROM_RIGHT:
+        deltaX = -1
+    if test_wall_ball(ball, wall) == FROM_TOP:
+        deltaY = -1
+
+    ball.left += deltaX
+    ball.right += deltaX
+    ball.bottom += deltaY
+    ball.top += deltaY
+
     glutSwapBuffers()
+
+
+def test_wall_ball(ball: rect, wall: rect):
+    if ball.right == wall.right:
+        return FROM_RIGHT
+    if ball.left == wall.left:
+        return FROM_LEFT
+    if ball.top == wall.top:
+        return FROM_TOP
+    if ball.bottom == wall.bottom:
+        return FROM_BOTTOM
+    return None
+
+
+def test_plyer_ball(ball: rect, player: rect):
+    if ball.bottom == player.top and ball.left >= player.left and ball.right <= player.right and deltaY == -1:
+        return True
+    return False
 
 
 def draw_text(string, x, y):
@@ -73,6 +121,19 @@ def keyboard(key, x, y):
         sys.exit(0)
 
 
+def mouse(x, y):
+    """
+    x,y : are the postion of mouse on window
+    """
+    global mouse_x
+    mouse_x = x
+
+
+def Timer(v):
+    display()
+    glutTimerFunc(PERIOD, Timer, 1)
+
+
 if __name__ == "__main__":
     glutInit()
     glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT)
@@ -82,5 +143,6 @@ if __name__ == "__main__":
     glutDisplayFunc(display)
     glutTimerFunc(PERIOD, Timer, 1)
     glutKeyboardFunc(keyboard)
+    glutPassiveMotionFunc(mouse)
     Init_Camera_Proj()
     glutMainLoop()
