@@ -1,11 +1,18 @@
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
-import rectangle
+from rectangle import *
 
 WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 500
 PERIOD = 10  # ms
+
+PLAYER_CNT = 0
+PC_CNT = 0
+
+ball = rect(400, 250, 420, 270)
+window = rect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
+player = rect(0, 0, 80, 20)
 
 
 def Init_Camera_Proj():
@@ -24,7 +31,36 @@ def Timer(v):
 
 
 def display():
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    glColor3f(1, 1, 1)
+    draw_rect(ball)
+    draw_rect(player)
+
+    glPushMatrix()
+    s1 = "PC : " + str(PC_CNT)
+    draw_text(s1, 10, 460)
+    glPopMatrix()
+
+    glPushMatrix()
+    s2 = "Player : " + str(PLAYER_CNT)
+    draw_text(s2, 10, 420)
+    glPopMatrix()
+
     glutSwapBuffers()
+
+
+def draw_text(string, x, y):
+    """
+    string : is the str to be drawn
+    x , y : are shift 
+    """
+    glColor3f(1, 1, 0)
+    glLineWidth(2)
+    glTranslate(x, y, 0)
+    glScale(0.15, 0.15, 0.15)
+    string = string.encode()
+    for char in string:
+        glutStrokeCharacter(GLUT_STROKE_ROMAN, char)
 
 
 def keyboard(key, x, y):
@@ -46,4 +82,5 @@ if __name__ == "__main__":
     glutDisplayFunc(display)
     glutTimerFunc(PERIOD, Timer, 1)
     glutKeyboardFunc(keyboard)
+    Init_Camera_Proj()
     glutMainLoop()
